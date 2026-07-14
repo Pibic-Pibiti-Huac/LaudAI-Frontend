@@ -3,16 +3,19 @@
 ## Como subir a aplicação
 
 1. Baixe o docker engine [link](https://docs.docker.com/engine/install/ubuntu/)
-2. Rode o comando:
+2. Vá para a pasta do app **laudAI-app**:
+```bash
+cd ./laudAI-app
+```
+3. Rode o comando:
 
 ```bash
 docker compose up --build
 ```
-3. Agora acesse o endereço: http://localhost:5173/ no navegador
-4. Pronto o seu App está pronto para uso
+4. Agora acesse o endereço: http://localhost:5173/ no navegador
+5. Pronto o seu App está pronto para uso
 
-
-**obs: Comnandos que podem ser úteis com docker** 
+**Obs: Comnandos que podem ser úteis com docker** 
 
 ```bash
 docker compose up -d # não mostra os logs no terminal e permite o uso do mesmo.
