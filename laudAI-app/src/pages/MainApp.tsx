@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { signOutUser, type User } from '../firebase'
 import type { Conversation, Message } from '../types'
+import { analyzeText } from '@/routes/model_routes'
 
 // ─── Mock AI ──────────────────────────────────────────────────────────────────
 
