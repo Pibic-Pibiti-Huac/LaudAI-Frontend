@@ -1,26 +1,23 @@
-import { useState, useEffect } from 'react'
-import { auth, onAuthStateChanged, type User } from './firebase'
+import { useState } from 'react'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import LoginPage from './pages/LoginPage'
 import MainApp from './pages/MainApp'
 
-type AuthState = 'loading' | 'unauthenticated' | 'authenticated'
-
 export default function App() {
-  const [authState, setAuthState] = useState<AuthState>('loading')
-  const [user, setUser] = useState<User | null>(null)
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  )
+}
+
+function AppContent() {
+  const { authState, user } = useAuth()
   const [isDark, setIsDark] = useState(() => {
     const stored = localStorage.getItem('laudai-theme')
     if (stored) return stored === 'dark'
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
-
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) { setUser(firebaseUser); setAuthState('authenticated') }
-      else { setUser(null); setAuthState('unauthenticated') }
-    })
-    return unsub
-  }, [])
 
   const toggleDark = () => {
     setIsDark(d => {

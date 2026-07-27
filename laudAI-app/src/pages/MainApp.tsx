@@ -868,10 +868,11 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
     setShowOnboarding(false)
 
     try {
+      const token = await user.getIdToken()
       const response = await analyzeText({
         role: 'assistant',
         report: laudoText,
-      })
+      }, token)
 
       const result = handleModelAnalyze(response)
       const finalContent = formatAnalyzeMessage(result) // "Nota: N/5 ⭐⭐⭐" + feedback

@@ -1,3 +1,5 @@
+import { apiFetch } from '../services/api'
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export interface AnalyzeTextRequest {
@@ -5,8 +7,6 @@ export interface AnalyzeTextRequest {
   report: string;
 }
 
-// Chaves de critério fixas (c1 a c5), seguindo o exemplo de resposta do modelo.
-// Ajuste a união abaixo caso a quantidade de critérios seja variável/dinâmica.
 export type CriterionKey = "c1" | "c2" | "c3" | "c4" | "c5";
 
 export interface Feedback {
@@ -22,9 +22,10 @@ export interface AnalyzeTextResponse {
 }
 
 export async function analyzeText(
-  data: AnalyzeTextRequest
+  data: AnalyzeTextRequest,
+  token: string,
 ): Promise<AnalyzeTextResponse> {
-  const response = await fetch(`${API_URL}/agent/full/analyze/text`, {
+  const response = await apiFetch(`${API_URL}/agent/full/analyze/text`, token, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
