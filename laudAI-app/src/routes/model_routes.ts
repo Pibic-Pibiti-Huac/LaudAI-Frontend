@@ -15,10 +15,40 @@ export interface Feedback {
   notas: Record<CriterionKey, number>;
 }
 
-export interface AnalyzeTextResponse {
+export interface AnalyzeTextResponse {  
   role: string;
   thinking: string;
   feedback: Feedback;
+}
+
+export interface ChatRequest {
+  role: string;
+  prompt: string;
+  history: { role: 'user' | 'assistant'; content: string }[];
+  laudo_text: string;
+}
+
+export interface ChatResponse {
+  role: string;
+  response: string;
+  thinking: string | null;
+}
+
+export async function sendChatMessage(
+  data: ChatRequest,
+  token: string,
+): Promise<ChatResponse> {
+  const response = await apiFetch(`${API_URL}/agent/message`, token, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Erro ao enviar mensagem: ${response.status} ${response.statusText}`,
+    );
+  }
+  return response.json();
 }
 
 export async function analyzeText(
@@ -91,7 +121,7 @@ export function handleModelAnalyze(
       const analise = avaliacao[key];
       const atendido = notas[key] === 1;
 
-      const status = atendido ? "✅ Atendido" : "❌ Não atendido";
+      const status = atendido ? "✅ Atendido" : "🟠 Parcialmente atendido";
 
       return (
         `• ${label} (${status})\n` +

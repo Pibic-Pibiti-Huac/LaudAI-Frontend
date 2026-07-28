@@ -15,7 +15,7 @@ export const FeedbackContent = ({ content, t }: { content: string; t: Theme }) =
   const isFull = sum === total
   const isZero = sum === 0
 
-  const notaColor = isFull ? '#16a34a' : isZero ? '#dc2626' : t.primary
+  const notaColor = isFull ? '#16a34a' : isZero ? '#dc9326' : t.primary
 
   const rest = blocks.slice(1)
   const conclusao = rest[rest.length - 1]?.startsWith('•') ? null : rest[rest.length - 1]
@@ -51,7 +51,7 @@ export const FeedbackContent = ({ content, t }: { content: string; t: Theme }) =
           const trecho = lines.find((l) => l.startsWith('Trecho identificado:'))
           const avaliacao = lines.find((l) => l.startsWith('Avaliação:'))
 
-          const headerMatch = header.match(/^•\s*(.+?)\s*\((✅|❌)\s*(.+?)\)$/)
+          const headerMatch = header.match(/^•\s*(.+?)\s*\((✅|🟠)\s*(.+?)\)$/)
           const label = headerMatch?.[1] ?? header.replace(/^•\s*/, '')
           const icon = headerMatch?.[2] ?? ''
           const status = headerMatch?.[3] ?? ''
@@ -64,13 +64,13 @@ export const FeedbackContent = ({ content, t }: { content: string; t: Theme }) =
                 padding: '10px 12px',
                 borderRadius: 10,
                 background: atendido ? 'rgba(22,163,74,0.06)' : 'rgba(220,38,38,0.06)',
-                borderLeft: `3px solid ${atendido ? '#16a34a' : '#dc2626'}`,
+                borderLeft: `3px solid ${atendido ? '#16a34a' : '#dc9326'}`,
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
                 <span style={{ fontWeight: 700, fontSize: 13.5 }}>{label}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: atendido ? '#16a34a' : '#dc2626', whiteSpace: 'nowrap' }}>
-                  {icon} {status}
+                <span style={{ fontSize: 12, fontWeight: 600, color: atendido ? '#16a34a' : '#dc9326', whiteSpace: 'nowrap' }}>
+                  {icon} {status} 
                 </span>
               </div>
               {trecho && (

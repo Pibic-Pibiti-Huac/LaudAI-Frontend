@@ -5,29 +5,19 @@ import { genId } from '../../utils/helpers'
 import { Ico, ICONS } from '../ui/Icons'
 import { Typing } from '../ui/Typing'
 import { Bubble } from './Bubble'
-
-const MOCK_RESPONSES = [
-  "Com base no laudo fornecido, as estruturas anatômicas descritas estão dentro dos parâmetros esperados. Gostaria que eu elaborasse algum achado específico ou sugerisse uma padronização da linguagem utilizada?",
-  "A terminologia radiológica está adequada. Para aprimorar, recomendo incluir a escala de densidade Hounsfield nos achados tomográficos e detalhar a extensão das alterações por segmento anatômico.",
-  "Nota-se uma oportunidade de estruturar melhor a conclusão diagnóstica. Sugiro separar os achados principais dos incidentais e usar linguagem direta na impressão diagnóstica.",
-  "Com relação ao parênquima pulmonar, seria recomendável especificar a distribuição — focal, multifocal ou difusa — e correlacionar com o contexto clínico. Posso redigir uma sugestão de parágrafo se desejar.",
-  "O laudo está bem estruturado. Há um detalhe na lateralidade que merece atenção — verifique se a referência anatômica está consistente com a orientação padrão de imagem.",
-  "Identifico que a descrição do contraste poderia ser mais detalhada. O padrão de realce (homogêneo, heterogêneo, periférico) é informação clinicamente relevante e deve constar no laudo.",
-  "A conclusão está objetiva. Considere adicionar uma correlação clinico-radiológica breve, especialmente se há achados incidentais que requerem seguimento.",
-]
-
-let mockIdx = 0
-const getMock = () => MOCK_RESPONSES[mockIdx++ % MOCK_RESPONSES.length]
+import { sendChatMessage } from '../../routes/model_routes'
 
 const SUGGESTED = ['Revise a conclusão do laudo', 'Sugira terminologia mais precisa', 'O laudo está completo?', 'Reescreva em linguagem padronizada']
 
 interface ChatViewProps {
   conv: Conversation
   t: Theme
+  laudoText: string
+  token: string
   onUpdateConv: (conv: Conversation) => void
 }
 
-export const ChatView = ({ conv, t, onUpdateConv }: ChatViewProps) => {
+export const ChatView = ({ conv, t, laudoText, token, onUpdateConv }: ChatViewProps) => {
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
@@ -35,19 +25,40 @@ export const ChatView = ({ conv, t, onUpdateConv }: ChatViewProps) => {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [conv.messages, typing])
 
-  const send = useCallback((text: string) => {
+  const send = useCallback(async (text: string) => {
     if (!text.trim() || typing) return
     const userMsg: Message = { id: genId(), role: 'user', content: text.trim(), timestamp: Date.now() }
     const updated = { ...conv, messages: [...conv.messages, userMsg], updatedAt: Date.now() }
     onUpdateConv(updated)
     setInput('')
     setTyping(true)
-    setTimeout(() => {
-      setTyping(false)
-      const aiMsg: Message = { id: genId(), role: 'assistant', content: getMock(), timestamp: Date.now() }
+
+    try {
+      const history = conv.messages.map(m => ({ role: m.role, content: m.content }))
+      const response = await sendChatMessage(
+        { role: 'assistant', prompt: text.trim(), history, laudo_text: laudoText },
+        token,
+      )
+
+      const aiMsg: Message = {
+        id: genId(),
+        role: 'assistant',
+        content: response.response,
+        timestamp: Date.now(),
+      }
       onUpdateConv({ ...updated, messages: [...updated.messages, aiMsg], updatedAt: Date.now() })
-    }, 1200 + Math.random() * 800)
-  }, [conv, typing, onUpdateConv])
+    } catch {
+      const errorMsg: Message = {
+        id: genId(),
+        role: 'assistant',
+        content: 'Não foi possível obter resposta agora. Tente novamente.',
+        timestamp: Date.now(),
+      }
+      onUpdateConv({ ...updated, messages: [...updated.messages, errorMsg], updatedAt: Date.now() })
+    } finally {
+      setTyping(false)
+    }
+  }, [conv, typing, laudoText, token, onUpdateConv])
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input) }

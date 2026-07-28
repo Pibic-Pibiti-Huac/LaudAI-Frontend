@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signOutUser, type User } from '../firebase'
 import type { Conversation, Message } from '../types'
 import { analyzeText, handleModelAnalyze, formatAnalyzeMessage } from '@/routes/model_routes'
@@ -30,6 +30,11 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
   })
   const [showOnboarding, setShowOnboarding] = useState(() => loadConvs().length === 0)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [token, setToken] = useState('')
+
+  useEffect(() => {
+    user.getIdToken().then(setToken)
+  }, [user])
 
   const saveConvs = (convs: Conversation[]) => {
     setConversations(convs)
@@ -180,7 +185,7 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
         {showOnboarding || !activeConv ? (
           <Onboarding t={t} isDark={isDark} onStart={handleStart} />
         ) : (
-          <ChatView conv={activeConv} t={t} onUpdateConv={handleUpdateConv} />
+          <ChatView conv={activeConv} t={t} laudoText={activeConv.laudoText} token={token} onUpdateConv={handleUpdateConv} />
         )}
       </div>
     </div>
