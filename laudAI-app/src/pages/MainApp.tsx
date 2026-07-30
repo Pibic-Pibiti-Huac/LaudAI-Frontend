@@ -30,6 +30,7 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
   })
   const [showOnboarding, setShowOnboarding] = useState(() => loadConvs().length === 0)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isAnalyzingLaudo, setIsAnalyzingLaudo] = useState(false)
   const [token, setToken] = useState('')
 
   useEffect(() => {
@@ -53,16 +54,10 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
       updatedAt: Date.now(),
     }
 
-    const loadingMsg: Message = {
-      id: genId(),
-      role: 'assistant',
-      content: `Analisando o laudo${fileName ? ` "${fileName}"` : ''}... 🔎`,
-      timestamp: Date.now(),
-    }
-    const withLoading = { ...baseConv, messages: [loadingMsg] }
-    saveConvs([withLoading, ...conversations])
+    saveConvs([baseConv, ...conversations])
     setActiveId(convId)
     setShowOnboarding(false)
+    setIsAnalyzingLaudo(true)
 
     try {
       const token = await user.getIdToken()
@@ -81,7 +76,7 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
         timestamp: Date.now(),
       }
 
-      const finalConv = { ...withLoading, messages: [finalMsg], updatedAt: Date.now() }
+      const finalConv = { ...baseConv, messages: [finalMsg], updatedAt: Date.now() }
       setConversations(prev => {
         const updated = [finalConv, ...prev.filter(c => c.id !== convId)]
         localStorage.setItem(storageKey, JSON.stringify(updated))
@@ -94,12 +89,14 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
         content: 'Não foi possível analisar o laudo agora. Tente novamente em instantes.',
         timestamp: Date.now(),
       }
-      const errorConv = { ...withLoading, messages: [errorMsg], updatedAt: Date.now() }
+      const errorConv = { ...baseConv, messages: [errorMsg], updatedAt: Date.now() }
       setConversations(prev => {
         const updated = [errorConv, ...prev.filter(c => c.id !== convId)]
         localStorage.setItem(storageKey, JSON.stringify(updated))
         return updated
       })
+    } finally {
+      setIsAnalyzingLaudo(false)
     }
   }
 
@@ -185,7 +182,7 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
         {showOnboarding || !activeConv ? (
           <Onboarding t={t} isDark={isDark} onStart={handleStart} />
         ) : (
-          <ChatView conv={activeConv} t={t} laudoText={activeConv.laudoText} token={token} onUpdateConv={handleUpdateConv} />
+          <ChatView conv={activeConv} t={t} laudoText={activeConv.laudoText} token={token} onUpdateConv={handleUpdateConv} isAnalyzingLaudo={isAnalyzingLaudo} />
         )}
       </div>
     </div>

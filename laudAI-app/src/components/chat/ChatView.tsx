@@ -5,7 +5,7 @@ import { genId } from '../../utils/helpers'
 import { Ico, ICONS } from '../ui/Icons'
 import { Typing } from '../ui/Typing'
 import { Bubble } from './Bubble'
-import { sendChatMessage } from '../../routes/model_routes'
+import { sendChatMessageStream } from '../../routes/model_routes'
 
 const SUGGESTED = ['Revise a conclusão do laudo', 'Sugira terminologia mais precisa', 'O laudo está completo?', 'Reescreva em linguagem padronizada']
 
@@ -15,18 +15,20 @@ interface ChatViewProps {
   laudoText: string
   token: string
   onUpdateConv: (conv: Conversation) => void
+  isAnalyzingLaudo?: boolean
 }
 
-export const ChatView = ({ conv, t, laudoText, token, onUpdateConv }: ChatViewProps) => {
+export const ChatView = ({ conv, t, laudoText, token, onUpdateConv, isAnalyzingLaudo }: ChatViewProps) => {
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [streamingContent, setStreamingContent] = useState<string | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [conv.messages, typing])
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [conv.messages, typing, streamingContent])
 
   const send = useCallback(async (text: string) => {
-    if (!text.trim() || typing) return
+    if (!text.trim() || typing || streamingContent !== null) return
     const userMsg: Message = { id: genId(), role: 'user', content: text.trim(), timestamp: Date.now() }
     const updated = { ...conv, messages: [...conv.messages, userMsg], updatedAt: Date.now() }
     onUpdateConv(updated)
@@ -35,15 +37,21 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv }: ChatViewPr
 
     try {
       const history = conv.messages.map(m => ({ role: m.role, content: m.content }))
-      const response = await sendChatMessage(
+      let accumulated = ''
+
+      for await (const tok of sendChatMessageStream(
         { role: 'assistant', prompt: text.trim(), history, laudo_text: laudoText },
         token,
-      )
+      )) {
+        if (typing) setTyping(false)
+        accumulated += tok
+        setStreamingContent(accumulated)
+      }
 
       const aiMsg: Message = {
         id: genId(),
         role: 'assistant',
-        content: response.response,
+        content: accumulated,
         timestamp: Date.now(),
       }
       onUpdateConv({ ...updated, messages: [...updated.messages, aiMsg], updatedAt: Date.now() })
@@ -57,8 +65,9 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv }: ChatViewPr
       onUpdateConv({ ...updated, messages: [...updated.messages, errorMsg], updatedAt: Date.now() })
     } finally {
       setTyping(false)
+      setStreamingContent(null)
     }
-  }, [conv, typing, laudoText, token, onUpdateConv])
+  }, [conv, typing, streamingContent, laudoText, token, onUpdateConv])
 
   const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input) }
@@ -81,12 +90,19 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv }: ChatViewPr
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '24px 24px 8px' }}>
-        {conv.messages.map(msg => <Bubble key={msg.id} msg={msg} t={t} />)}
-        {typing && <Typing t={t} />}
+        {isAnalyzingLaudo && conv.messages.length === 0 ? (
+          <Typing t={t} />
+        ) : (
+          conv.messages.map(msg => <Bubble key={msg.id} msg={msg} t={t} />)
+        )}
+        {streamingContent !== null && (
+          <Bubble msg={{ id: 'streaming', role: 'assistant', content: streamingContent, timestamp: Date.now() }} t={t} />
+        )}
+        {typing && streamingContent === null && <Typing t={t} />}
         <div ref={endRef} />
       </div>
 
-      {conv.messages.length <= 1 && (
+      {!isAnalyzingLaudo && conv.messages.length <= 1 && (
         <div style={{ padding: '0 24px 12px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {SUGGESTED.map(s => (
             <button
@@ -137,12 +153,12 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv }: ChatViewPr
           />
           <button
             onClick={() => send(input)}
-            disabled={!input.trim() || typing}
+            disabled={!input.trim() || typing || streamingContent !== null}
             style={{
               width: 36, height: 36, borderRadius: 10, border: 'none',
-              background: input.trim() && !typing ? t.primary : t.border,
-              color: input.trim() && !typing ? '#fff' : t.textMuted,
-              cursor: input.trim() && !typing ? 'pointer' : 'default',
+              background: input.trim() && !typing && streamingContent === null ? t.primary : t.border,
+              color: input.trim() && !typing && streamingContent === null ? '#fff' : t.textMuted,
+              cursor: input.trim() && !typing && streamingContent === null ? 'pointer' : 'default',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0, transition: 'all 0.2s',
             }}
