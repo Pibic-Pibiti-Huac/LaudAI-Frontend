@@ -5,9 +5,10 @@ import { genId } from '../../utils/helpers'
 import { Ico, ICONS } from '../ui/Icons'
 import { Typing } from '../ui/Typing'
 import { Bubble } from './Bubble'
-import { sendChatMessageStream } from '../../routes/model_routes'
+import { sendChatMessageStream, sendCorrectReportStream } from '../../routes/model_routes'
 
-const SUGGESTED = ['Revise a conclusão do laudo', 'Sugira terminologia mais precisa', 'O laudo está completo?', 'Reescreva em linguagem padronizada']
+const CORRECT_SUGGESTION = 'Gere o laudo corrigido'
+const SUGGESTED = [CORRECT_SUGGESTION, 'Revise a conclusão do laudo', 'Sugira terminologia mais precisa', 'O laudo está completo?', 'Reescreva em linguagem padronizada']
 
 interface ChatViewProps {
   conv: Conversation
@@ -39,10 +40,17 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv, isAnalyzingL
       const history = conv.messages.map(m => ({ role: m.role, content: m.content }))
       let accumulated = ''
 
-      for await (const tok of sendChatMessageStream(
-        { role: 'assistant', prompt: text.trim(), history, laudo_text: laudoText },
-        token,
-      )) {
+      const stream = text.trim() === CORRECT_SUGGESTION
+        ? sendCorrectReportStream(
+            { role: 'assistant', laudo_text: laudoText, evaluation: conv.evaluation ?? null },
+            token,
+          )
+        : sendChatMessageStream(
+            { role: 'assistant', prompt: text.trim(), history, laudo_text: laudoText },
+            token,
+          )
+
+      for await (const tok of stream) {
         if (typing) setTyping(false)
         accumulated += tok
         setStreamingContent(accumulated)
@@ -110,7 +118,7 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv, isAnalyzingL
               onClick={() => send(s)}
               style={{
                 padding: '6px 12px', borderRadius: 20, border: `1px solid ${t.primaryBorder}`,
-                background: t.primaryLight, color: t.primary, fontSize: 12.5,
+                background: t.primaryLight, color: t.primary, fontSize: 13,
                 cursor: 'pointer', transition: 'opacity 0.15s',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
@@ -142,7 +150,7 @@ export const ChatView = ({ conv, t, laudoText, token, onUpdateConv, isAnalyzingL
             rows={1}
             style={{
               flex: 1, background: 'none', border: 'none', outline: 'none',
-              resize: 'none', color: t.text, fontSize: 14, lineHeight: 1.6,
+              resize: 'none', color: t.text, fontSize: 16, lineHeight: 1.6,
               fontFamily: 'system-ui, sans-serif', maxHeight: 120, overflowY: 'auto',
             }}
             onInput={(e) => {

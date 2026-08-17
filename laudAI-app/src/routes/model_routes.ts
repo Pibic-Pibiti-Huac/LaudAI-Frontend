@@ -1,4 +1,5 @@
 import { apiFetch } from '../services/api'
+import type { LaudoEvaluation } from '../types'
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,18 +29,13 @@ export interface ChatRequest {
   laudo_text: string;
 }
 
-export async function* sendChatMessageStream(
-  data: ChatRequest,
-  token: string,
-  signal?: AbortSignal,
-): AsyncGenerator<string> {
-  const response = await apiFetch(`${API_URL}/agent/message/stream`, token, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-    signal,
-  })
+export interface CorrectReportRequest {
+  role: string;
+  laudo_text: string;
+  evaluation: LaudoEvaluation | null;
+}
 
+async function* streamTokens(response: Response): AsyncGenerator<string> {
   const reader = response.body!.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
@@ -62,6 +58,32 @@ export async function* sendChatMessageStream(
       } catch {}
     }
   }
+}
+
+export async function* sendChatMessageStream(
+  data: ChatRequest,
+  token: string,
+  signal?: AbortSignal,
+): AsyncGenerator<string> {
+  const response = await apiFetch(`${API_URL}/agent/message/stream`, token, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+    signal,
+  })
+  yield* streamTokens(response)
+}
+
+export async function* sendCorrectReportStream(
+  data: CorrectReportRequest,
+  token: string,
+): AsyncGenerator<string> {
+  const response = await apiFetch(`${API_URL}/agent/correct/report`, token, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  yield* streamTokens(response)
 }
 
 export interface ChatResponse {

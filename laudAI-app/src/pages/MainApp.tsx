@@ -76,7 +76,7 @@ export default function MainApp({ user, isDark, onToggleDark }: Props) {
         timestamp: Date.now(),
       }
 
-      const finalConv = { ...baseConv, messages: [finalMsg], updatedAt: Date.now() }
+      const finalConv = { ...baseConv, evaluation: response.feedback, messages: [finalMsg], updatedAt: Date.now() }
       setConversations(prev => {
         const updated = [finalConv, ...prev.filter(c => c.id !== convId)]
         localStorage.setItem(storageKey, JSON.stringify(updated))

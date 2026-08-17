@@ -15,8 +15,8 @@ const headingClasses = {
   2: { fontSize: 19, fontWeight: 700, margin: '14px 0 6px', lineHeight: 1.35 },
   3: { fontSize: 17, fontWeight: 600, margin: '12px 0 6px', lineHeight: 1.4 },
   4: { fontSize: 15, fontWeight: 600, margin: '10px 0 4px', lineHeight: 1.4 },
-  5: { fontSize: 14, fontWeight: 600, margin: '8px 0 4px', lineHeight: 1.4 },
-  6: { fontSize: 14, fontWeight: 600, margin: '8px 0 4px', lineHeight: 1.4, color: '#656d76' },
+  5: { fontSize: 15, fontWeight: 600, margin: '8px 0 4px', lineHeight: 1.4 },
+  6: { fontSize: 15, fontWeight: 600, margin: '8px 0 4px', lineHeight: 1.4, color: '#656d76' },
 }
 
 const MarkdownContent = ({ content, t }: { content: string; t: Theme }) => {
@@ -67,7 +67,7 @@ const MarkdownContent = ({ content, t }: { content: string; t: Theme }) => {
       <code
         style={{
           background: t.border, padding: '2px 5px', borderRadius: 4,
-          fontSize: 13, fontFamily: 'ui-monospace, monospace',
+          fontSize: 15, fontFamily: 'ui-monospace, monospace',
         }}
         {...props}
       >{children}</code>
@@ -76,7 +76,7 @@ const MarkdownContent = ({ content, t }: { content: string; t: Theme }) => {
       <pre
         style={{
           background: t.border, padding: 12, borderRadius: 8,
-          overflowX: 'auto', fontSize: 13, lineHeight: 1.5,
+          overflowX: 'auto', fontSize: 15, lineHeight: 1.5,
           margin: '0 0 10px', fontFamily: 'ui-monospace, monospace',
         }}
         {...props}
@@ -101,7 +101,7 @@ const MarkdownContent = ({ content, t }: { content: string; t: Theme }) => {
     ),
     table: ({ children, ...props }) => (
       <div style={{ overflowX: 'auto', marginBottom: 10 }}>
-        <table style={{ borderCollapse: 'collapse', fontSize: 13, width: '100%' }} {...props}>{children}</table>
+        <table style={{ borderCollapse: 'collapse', fontSize: 14, width: '100%' }} {...props}>{children}</table>
       </div>
     ),
     th: ({ children, ...props }) => (
@@ -151,7 +151,7 @@ export const Bubble = ({ msg, t }: { msg: Message; t: Theme }) => {
           background: isUser ? t.userBubble : t.aiBubble,
           border: `1px solid ${isUser ? t.userBubbleBorder : t.aiBubbleBorder}`,
           color: t.text,
-          fontSize: 14,
+          fontSize: 16,
           lineHeight: 1.65,
         }}
       >
@@ -162,7 +162,7 @@ export const Bubble = ({ msg, t }: { msg: Message; t: Theme }) => {
         ) : (
           <MarkdownContent content={msg.content} t={t} />
         )}
-        <div style={{ marginTop: 5, fontSize: 11, color: t.textMuted, textAlign: isUser ? 'right' : 'left' }}>
+        <div style={{ marginTop: 5, fontSize: 12, color: t.textMuted, textAlign: isUser ? 'right' : 'left' }}>
           {new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

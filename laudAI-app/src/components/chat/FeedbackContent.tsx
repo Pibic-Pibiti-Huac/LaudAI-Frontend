@@ -32,14 +32,14 @@ export const FeedbackContent = ({ content, t }: { content: string; t: Theme }) =
           borderBottom: `1px solid ${t.aiBubbleBorder}`,
         }}
       >
-        <span style={{ fontSize: 22, fontWeight: 800, color: notaColor }}>
+        <span style={{ fontSize: 24, fontWeight: 800, color: notaColor }}>
           {sum}/{total}
         </span>
-        <span style={{ fontSize: 20, letterSpacing: 1 }}>{stars}</span>
+        <span style={{ fontSize: 22, letterSpacing: 1 }}>{stars}</span>
       </div>
 
       {intro && (
-        <div style={{ marginBottom: 14, color: t.textMuted, fontSize: 13.5 }}>
+        <div style={{ marginBottom: 14, color: t.textMuted, fontSize: 14.5 }}>
           {intro}
         </div>
       )}
@@ -68,18 +68,18 @@ export const FeedbackContent = ({ content, t }: { content: string; t: Theme }) =
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
-                <span style={{ fontWeight: 700, fontSize: 13.5 }}>{label}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: atendido ? '#16a34a' : '#dc9326', whiteSpace: 'nowrap' }}>
+                <span style={{ fontWeight: 700, fontSize: 14.5 }}>{label}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: atendido ? '#16a34a' : '#dc9326', whiteSpace: 'nowrap' }}>
                   {icon} {status} 
                 </span>
               </div>
               {trecho && (
-                <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 3 }}>
+                <div style={{ fontSize: 14.5, color: t.textMuted, marginBottom: 3 }}>
                   {trecho}
                 </div>
               )}
               {avaliacao && (
-                <div style={{ fontSize: 13, color: t.text }}>
+                <div style={{ fontSize: 14.5, color: t.text }}>
                   {avaliacao}
                 </div>
               )}
@@ -89,7 +89,7 @@ export const FeedbackContent = ({ content, t }: { content: string; t: Theme }) =
       </div>
 
       {conclusao && (
-        <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${t.aiBubbleBorder}`, fontSize: 13.5, color: t.textMuted }}>
+        <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${t.aiBubbleBorder}`, fontSize: 14.5, color: t.textMuted }}>
           {conclusao}
         </div>
       )}
