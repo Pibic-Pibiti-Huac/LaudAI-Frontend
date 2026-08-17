@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { User } from '../../firebase'
 import type { Conversation } from '../../types'
 import type { Theme } from '../../theme/theme'
@@ -25,6 +25,10 @@ export const Sidebar = ({
   user, isDark, onToggleDark, onLogout, t, collapsed, onToggleCollapse,
 }: SidebarProps) => {
   const [deleteHover, setDeleteHover] = useState<string | null>(null)
+  const [avatarFailed, setAvatarFailed] = useState(false)
+  const photoURL = user.photoURL || user.providerData.find(p => p.photoURL)?.photoURL || null
+
+  useEffect(() => { setAvatarFailed(false) }, [photoURL])
 
   return (
     <div
@@ -133,8 +137,10 @@ export const Sidebar = ({
 
       <div style={{ borderTop: `1px solid ${t.border}`, padding: '12px 12px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          {user.photoURL ? (
-            <img src={user.photoURL} alt={user.displayName ?? ''} width={32} height={32}
+          {photoURL && !avatarFailed ? (
+            <img src={photoURL} alt={user.displayName ?? ''} width={32} height={32}
+              referrerPolicy="no-referrer"
+              onError={() => setAvatarFailed(true)}
               style={{ borderRadius: '50%', border: `1.5px solid ${t.primaryBorder}` }} />
           ) : (
             <div style={{
