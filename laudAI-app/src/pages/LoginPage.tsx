@@ -144,7 +144,7 @@ export default function LoginPage({ isDark, onToggleDark }: Props) {
             Laud<span style={{ color: '#0066CC' }}>AI</span>
           </div>
           <p style={{ margin: '8px 0 0', color: c.sub, fontSize: 13, lineHeight: 1.5 }}>
-            Assistente de Radiologia<br />
+            Assistente de Radiologia de Tórax<br />
             <span style={{ fontWeight: 600, color: isDark ? '#4d8fd1' : '#0055aa' }}>
               HUAC · Hospital Universitário Alcides Carneiro
             </span>

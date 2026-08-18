@@ -194,7 +194,7 @@ export function handleModelAnalyze(
       ? "O laudo atendeu a todos os critérios avaliados, indicando um relatório completo segundo os parâmetros analisados."
       : sum === 0
       ? "O laudo não atendeu a nenhum dos critérios avaliados. Recomenda-se revisão do relatório."
-      : "O laudo atendeu parcialmente aos critérios avaliados. Confira abaixo os pontos que podem ser revisados.";
+      : "O laudo atendeu parcialmente aos critérios avaliados. Confira acima os pontos que podem ser revisados.";
 
   const feedbackText = `${introducao}\n\n${detalhes}\n\n${conclusao}`;
 

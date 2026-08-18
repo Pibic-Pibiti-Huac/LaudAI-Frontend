@@ -8,7 +8,7 @@ import { Bubble } from './Bubble'
 import { sendChatMessageStream, sendCorrectReportStream } from '../../routes/model_routes'
 
 const CORRECT_SUGGESTION = 'Gere o laudo corrigido'
-const SUGGESTED = [CORRECT_SUGGESTION, 'Revise a conclusão do laudo', 'Sugira terminologia mais precisa', 'O laudo está completo?', 'Reescreva em linguagem padronizada']
+const SUGGESTED = [CORRECT_SUGGESTION]
 
 interface ChatViewProps {
   conv: Conversation

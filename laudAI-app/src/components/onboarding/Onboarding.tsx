@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import type { Theme } from '../../theme/theme'
 import { Ico, ICONS } from '../ui/Icons'
 
-const SUGGESTED = ['Revise a conclusão do laudo', 'Sugira terminologia mais precisa', 'O laudo está completo?', 'Reescreva em linguagem padronizada']
+const SUGGESTED = ['Revise a conclusão do laudo']
 
 interface OnboardingProps {
   t: Theme
