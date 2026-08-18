@@ -12,7 +12,7 @@ cd ./laudAI-app
 ```bash
 docker compose up --build
 ```
-4. Agora acesse o endereço: http://localhost:5173/ no navegador
+4. Agora acesse o endereço que o **VITE** disponibiliza no navegador
 5. Pronto o seu App está pronto para uso
 
 **Obs: Comandos que podem ser úteis com docker** 
@@ -53,6 +53,23 @@ src/
 │   └── theme.ts                # Função theme() e tipo Theme (claro/escuro)
 ├── utils/
 │   └── helpers.ts              # Funções utilitárias (genId, formatDate, titleFromText)
+├── App.tsx                     # Componente raiz (AuthProvider, tema claro/escuro, rota login/main)
+├── main.tsx                    # Ponto de entrada do React
+├── index.css                   # Estilos globais
+├── vite-env.d.ts               # Tipos de ambiente do Vite
 ├── types.ts                    # Interfaces compartilhadas (Conversation, Message)
 └── firebase.ts                 # Configuração e instância do Firebase
+```
+## Integrar com o Backend 
+
+1. Clonar o Repositório no mesmo local do repositório do Frontend
+
+```bash
+git clone https://github.com/Pibic-Pibiti-Huac/LaudAI-Backend.git
+```
+
+2. Criar a **rede** entre os dois containers 
+
+```bash
+docker network create app-network
 ```
